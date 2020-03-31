@@ -1,7 +1,5 @@
 #!/home/kenjo/.groovy/coatjava/bin/run-groovy
 import org.jlab.io.hipo.HipoDataSource
-import org.jlab.detector.base.DetectorType
-import org.jlab.clas.physics.Vector3
 import org.jlab.groot.data.H1F
 import org.jlab.groot.data.H2F
 import org.jlab.groot.data.TDirectory
@@ -11,20 +9,18 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
-import mon.clas12.exclusive.ep_mon
-import mon.clas12.exclusive.eppi0_mon
-import mon.clas12.exclusive.eppippim_mon
-import mon.clas12.exclusive.enpip_mon
-import mon.clas12.exclusive.epip_mon
-import mon.clas12.exclusive.epippim_mon
+import clas12.mon.exclusive.EP_mon
+import clas12.mon.exclusive.EPPi0_mon
+import clas12.mon.exclusive.EPPipPim_mon
+import clas12.mon.exclusive.ENPip_mon
+import clas12.groovy.Sugar
 
-MyMods.enable()
+Sugar.enable()
 /////////////////////////////////////////////////////////////////////
 
 def outname = args[0].split('/')[-1]
 
-def processors = [new eppi0_mon(), new ep_mon(), new eppippim_mon()]
-#processors = [new enpip_mon(), new epip_mon()]
+def processors = [new EPPi0_mon(), new EP_mon(), new EPPipPim_mon()]
 
 def evcount = new AtomicInteger()
 def save = {
@@ -48,7 +44,6 @@ GParsPool.withPool 12, {
     def reader = new HipoDataSource()
     reader.open(fname)
 
-    //while(reader.hasEvent() && evcount.get()<5000000) {
     while(reader.hasEvent()) {
       evcount.getAndIncrement()
       def event = reader.getNextEvent()
@@ -58,6 +53,8 @@ GParsPool.withPool 12, {
     reader.close()
   }
 }
+
+processor.each{if(it.metaClass.respondsTo(it, 'finish')) it.finish()}
 
 exe.shutdown()
 save()

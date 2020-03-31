@@ -1,20 +1,12 @@
-package mon.clas12.exclusive
+package clas12.mon.exclusive
 
-import org.jlab.detector.base.DetectorType
 import org.jlab.clas.physics.LorentzVector
-import org.jlab.clas.physics.Vector3
 import org.jlab.groot.data.H1F
 import org.jlab.groot.data.H2F
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.TimeUnit
-import java.nio.ByteBuffer
 
 
-class eppippim_mon {
+class EPPipPim_mon {
   def hists = new ConcurrentHashMap()
 
   def beam = LorentzVector.withPID(11,0,0,10.6)
