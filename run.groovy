@@ -54,7 +54,7 @@ GParsPool.withPool 12, {
   }
 }
 
-processor.each{if(it.metaClass.respondsTo(it, 'finish')) it.finish()}
+processors.each{if(it.metaClass.respondsTo(it, 'finish')) it.finish()}
 
 exe.shutdown()
 save()
