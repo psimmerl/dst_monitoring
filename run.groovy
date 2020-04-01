@@ -13,7 +13,7 @@ import clas12.mon.exclusive.EP_mon
 import clas12.mon.exclusive.EPPi0_mon
 import clas12.mon.exclusive.EPPipPim_mon
 import clas12.mon.exclusive.ENPip_mon
-import clas12.mom.fcup.FCup
+import clas12.mon.fcup.FCup
 import clas12.groovy.Sugar
 
 Sugar.enable()
