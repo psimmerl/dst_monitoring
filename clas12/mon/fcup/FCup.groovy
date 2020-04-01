@@ -24,7 +24,7 @@ class FCup {
   def finish() {
     def fc0 = null, fc1 = null, ts0 = null
 
-    def timeline = fcentry.sort().collect{ts,fcs->[ts,*fcs]}.unique()
+    def timeline = fcentry.sort().collect{ts,fcs->[ts,*fcs]}
 
     def data = (0..timeline.size-2).collect{i->
       def (dt,dfc0,dfc1) = [0,1,2].collect{timeline[i+1][it]-timeline[i][it]}
@@ -32,16 +32,16 @@ class FCup {
       return [dt, dfc0, dfc1, dfc0/dt, dfc1/dt]
     }
 
-    def h0fcdt = new H1F("h0dt", "time between FC readings;time [sec]", 120,0,data.max{it[0]}[0])
-    def h0fcdq0 = new H1F("h0ugtdQ", "ungated charge between FC readings:charge [nC]", 120,0,data.max{it[1]}[1])
-    def h0fcdq1 = new H1F("h0gtdQ", "gated charge between FC readings:charge [nC]", 120,0,data.max{it[2]}[2])
-    def h0curr0 = new H1F("h0ugtdI", "ungated current;current [nA]", 120,0,data.max{it[3]}[3])
-    def h0curr1 = new H1F("h0gtdI", "gated current;current [nA]", 120,0,data.max{it[4]}[4])
-    def h1fcdt = new H1F("h1dt", "time between FC readings;time [sec]", 120,0,0.5)
-    def h1fcdq0 = new H1F("h1ugtdQ", "charge between FC readings:charge [nC]", 120,0,3)
-    def h1fcdq1 = new H1F("h1gtdQ", "charge between FC readings:charge [nC]", 120,0,3)
-    def h1curr0 = new H1F("h1ugtdI", "current;current [nA]", 120,0,70)
-    def h1curr1 = new H1F("h1gtdI", "current;current [nA]", 120,0,70)
+    def h0fcdt = new H1F("hdt_0", "time between FC readings;time [sec]", 200,0,data.max{it[0]}[0])
+    def h0fcdq0 = new H1F("hugtdQ_0", "ungated charge between FC readings:charge [nC]", 300,0,data.max{it[1]}[1])
+    def h0fcdq1 = new H1F("hgtdQ_0", "gated charge between FC readings:charge [nC]", 300,0,data.max{it[2]}[2])
+    def h0curr0 = new H1F("hugtdI_0", "ungated current;current [nA]", 200,0,data.max{it[3]}[3])
+    def h0curr1 = new H1F("hgtdI_0", "gated current;current [nA]", 200,0,data.max{it[4]}[4])
+    def h1fcdt = new H1F("hdt_1", "time between FC readings;time [sec]", 200,0,0.1)
+    def h1fcdq0 = new H1F("hugtdQ_1", "charge between FC readings:charge [nC]", 300,0,3)
+    def h1fcdq1 = new H1F("hgtdQ_1", "charge between FC readings:charge [nC]", 300,0,3)
+    def h1curr0 = new H1F("hugtdI_1", "current;current [nA]", 300,0,60)
+    def h1curr1 = new H1F("hgtdI_1", "current;current [nA]", 300,0,60)
 
     data.each{dt,dfc0,dfc1,curr0,curr1->
       h0fcdt.fill(dt)
