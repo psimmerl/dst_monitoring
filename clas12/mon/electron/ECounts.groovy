@@ -19,14 +19,12 @@ class ECounts {
       if(event.hasBank("RUN::scaler")) {
         def scaler = event.getBank("RUN::scaler")
         def fcg = scaler.getFloat('fcupgated',0)
-        if(fcentry.contains(ts)) println([fcentry[ts], fcg])
         fcentry[ts] = fcg
       }
 
      if(event.hasBank("REC::Particle")) {
         def partb = event.getBank("REC::Particle")
         def iele = (0..<partb.rows()).find{partb.getInt('pid',it)==11 && partb.getShort("status",it)<0}
-        if(elentry.contains(ts)) println(cnfb)
         if(iele!=null) elentry[ts] = 0
       }
     }
@@ -34,6 +32,17 @@ class ECounts {
 
 
   def finish() {
+   def tline = fcentry.collect{ts,fcg->[ts,0,fcg]}
+   tline.addAll(elentry.collect{[it.key,1,0]})
+   tline.sort{a,b->a[0]<=>b[0]?:a[1]<=>b[1]}
+
+   def data = []
+   tline.each{ts,id,fcg->
+     if(id==0) data.add([ts, fcg, 0])
+     else if(data) data[-1][1]++
+   }
+   data.each{println it}
+   
 /*
     def fc0 = null, fc1 = null, ts0 = null
 

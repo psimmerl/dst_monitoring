@@ -1,11 +1,25 @@
 package clas12.groovy
 
+import org.jlab.groot.data.H1F
+import org.jlab.groot.data.H2F
 import org.jlab.groot.data.TDirectory
 import org.jlab.clas.physics.LorentzVector
 import org.jlab.clas.pdg.PDGDatabase
 
 class Sugar {
   static void enable() {
+    H2F.metaClass.projectionX = {name->
+      H1F h1 = delegate.projectionX()
+      h1.setName(name)
+      return h1
+    }
+
+    H2F.metaClass.projectionY = {name->
+      H1F h1 = delegate.projectionY()
+      h1.setName(name)
+      return h1
+    }
+
     TDirectory.metaClass.writeDataSet = {
       def pwd = delegate.getDir().getDirectoryPath()
       it.getName().split('/').dropRight(1).findAll().each{
