@@ -32,16 +32,30 @@ class FCup {
       return [dt, dfc0, dfc1, dfc0/dt, dfc1/dt]
     }
 
-    def h0fcdt = new H1F("hdt_0", "time between FC readings;time [sec]", 200,0,data.max{it[0]}[0])
-    def h0fcdq0 = new H1F("hugtdQ_0", "ungated charge between FC readings:charge [nC]", 300,0,data.max{it[1]}[1])
-    def h0fcdq1 = new H1F("hgtdQ_0", "gated charge between FC readings:charge [nC]", 300,0,data.max{it[2]}[2])
-    def h0curr0 = new H1F("hugtdI_0", "ungated current;current [nA]", 200,0,data.max{it[3]}[3])
-    def h0curr1 = new H1F("hgtdI_0", "gated current;current [nA]", 200,0,data.max{it[4]}[4])
-    def h1fcdt = new H1F("hdt_1", "time between FC readings;time [sec]", 200,0,0.1)
-    def h1fcdq0 = new H1F("hugtdQ_1", "charge between FC readings:charge [nC]", 300,0,3)
-    def h1fcdq1 = new H1F("hgtdQ_1", "charge between FC readings:charge [nC]", 300,0,3)
-    def h1curr0 = new H1F("hugtdI_1", "current;current [nA]", 300,0,60)
-    def h1curr1 = new H1F("hgtdI_1", "current;current [nA]", 300,0,60)
+    def minuQ = Math.min(0,data.collect{it[1]}.min())
+    def maxuQ = data.collect{it[1]}.max()
+    def duQ = 0.1*(maxuQ-minuQ)
+    def mingQ = Math.min(0,data.collect{it[2]}.min())
+    def maxgQ = data.collect{it[2]}.max()
+    def dgQ = 0.1*(maxgQ-mingQ)
+
+    def minuI = Math.min(0,data.collect{it[3]}.min())
+    def maxuI = data.collect{it[3]}.max()
+    def duI = 0.1*(maxuI-minuI)
+    def mingI = Math.min(0,data.collect{it[4]}.min())
+    def maxgI = data.collect{it[4]}.max()
+    def dgI = 0.1*(maxgI-mingI)
+
+    def h0fcdt = new H1F("hdt_0", "time between FC readings [full range];time [sec]", 200,0,data.max{it[0]}[0])
+    def h0fcdq0 = new H1F("hugtdQ_0", "ungated charge between FC readings [full range];charge [nC]", 300,minuQ-duQ,maxuQ+duQ)
+    def h0fcdq1 = new H1F("hgtdQ_0", "gated charge between FC readings [full range];charge [nC]", 300,mingQ-dgQ,maxgQ+dgQ)
+    def h0curr0 = new H1F("hugtdI_0", "ungated current [full range];current [nA]", 200,minuI-duI,maxuI+duI)
+    def h0curr1 = new H1F("hgtdI_0", "gated current [full range];current [nA]", 200,mingI-dgI,maxgI+dgI)
+    def h1fcdt = new H1F("hdt_1", "time between FC readings [zoomed];time [sec]", 200,0,0.1)
+    def h1fcdq0 = new H1F("hugtdQ_1", "ungated charge between FC readings [zoomed];charge [nC]", 300,0,3)
+    def h1fcdq1 = new H1F("hgtdQ_1", "gated charge between FC readings [zoomed];charge [nC]", 300,0,3)
+    def h1curr0 = new H1F("hugtdI_1", "ungated current [zoomed];current [nA]", 300,0,170)
+    def h1curr1 = new H1F("hgtdI_1", "gated current [zoomed];current [nA]", 300,0,170)
 
     data.each{dt,dfc0,dfc1,curr0,curr1->
       h0fcdt.fill(dt)
