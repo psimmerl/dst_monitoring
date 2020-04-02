@@ -6,7 +6,7 @@ import org.jlab.groot.data.H2F
 import java.util.concurrent.ConcurrentHashMap
 
 
-class FCup {
+class FCup_mon {
   def hists = new ConcurrentHashMap()
   def fcentry = new ConcurrentHashMap()
 
