@@ -13,7 +13,9 @@ import clas12.mon.exclusive.EP_mon
 import clas12.mon.exclusive.EPPi0_mon
 import clas12.mon.exclusive.EPPipPim_mon
 import clas12.mon.exclusive.ENPip_mon
-import clas12.mon.fcup.FCup
+import clas12.mon.fcup.FCup_mon
+import clas12.mon.electron.ECounts
+import clas12.mon.ft.FT_mon
 import clas12.groovy.Sugar
 
 Sugar.enable()
@@ -21,7 +23,7 @@ Sugar.enable()
 
 def outname = args[0].split('/')[-1]
 
-def processors = [new FCup()]
+def processors = [new EPPi0_mon(), new EPPipPim_mon(), new EP_mon()]
 
 def evcount = new AtomicInteger()
 def save = {
