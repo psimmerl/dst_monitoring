@@ -62,7 +62,7 @@ class ECounts {
 
     int maxnele = Math.max(20, data.collect{it[2].max()}.max().toInteger()+5)
     def maxnorm = data.dropRight(1).collect{it[5].max()}.max()
-    def hsnele = (1..6).collect{new H2F("h2nele_s${it}", "number of electrons int sec $it between FC readings;number of electrons", maxnele,0,maxnele,200,0,60)}
+    def hsnele = (1..6).collect{new H2F("h2nele_s${it}", "number of electrons in sec $it between FC readings;number of electrons", maxnele,0,maxnele,200,0,60)}
     def hsnorm0 = (1..6).collect{new H2F("full/h2enorm_s${it}", "normalized number of electrons in sec $it;normalized number of electrons", 200,0,maxnorm,200,0,60)}
     def hsnorm1 = (1..6).collect{new H2F("zoom/h2enorm_s${it}", "normalized number of electrons in sec $it;normalized number of electrons", 200,0,15,200,0,60)}
 
