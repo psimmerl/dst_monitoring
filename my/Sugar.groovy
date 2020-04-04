@@ -1,4 +1,4 @@
-package clas12.groovy
+package my
 
 import org.jlab.groot.data.H1F
 import org.jlab.groot.data.H2F
