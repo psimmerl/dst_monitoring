@@ -16,7 +16,7 @@ import clas12.mon.exclusive.ENPip_mon
 import clas12.mon.fcup.FCup_mon
 import clas12.mon.electron.ECounts
 import clas12.mon.ft.FT_mon
-import clas12.groovy.Sugar
+import my.Sugar
 
 Sugar.enable()
 /////////////////////////////////////////////////////////////////////
