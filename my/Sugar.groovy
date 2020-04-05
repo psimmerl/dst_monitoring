@@ -27,7 +27,8 @@ class Sugar {
         delegate.cd(it)
       }
       delegate.add(it.getName().split('/')[-1], it)
-      delegate.cd(pwd)
+      if(pwd=='/') delegate.cd()
+      else delegate.cd(pwd)
     }
 
     LorentzVector.metaClass.static.withPID = {pid,x,y,z->
