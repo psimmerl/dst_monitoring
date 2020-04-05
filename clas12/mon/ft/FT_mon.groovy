@@ -57,10 +57,8 @@ class FT_mon {
           def dt = ts - ts0
           def dq = fcg - fc0
           data[-1].addAll([dt, dq, trgs*.div(dq)])
-          println(data[-1])
         }
         data.add([ts,fcg,[0,0]])
-        println(data[-1])
       } else if(data) {
         data[-1][2][0] += val[0]
         data[-1][2][1] += val[1]
@@ -69,9 +67,10 @@ class FT_mon {
 
     int maxntrg = data.collect{it[2].max()}.max().toInteger()+5
     def maxnorm = data.dropRight(1).collect{it[5].max()}.max()*1.1
+    def fxdmax = [24:15, 25:200]
     def hsntrgs = [24,25].collect{new H2F("h2ntrg_b${it}", "number of ${it}th trigger bits between FC readings;number of trigger bits", maxntrg,0,maxntrg,200,0,60)}
     def hsnorm0 = [24,25].collect{new H2F("full/h2norm_b${it}", "normalized number of ${it}th trigger bits [full range];normalized number of trigger bits", 200,0,maxnorm,200,0,60)}
-    def hsnorm1 = [24,25].collect{new H2F("zoom/h2norm_b${it}", "normalized number of ${it}th trigger bits [fixed range];normalized number of trigger bits", 200,0,15,200,0,60)}
+    def hsnorm1 = [24,25].collect{new H2F("fixed/h2norm_b${it}", "normalized number of ${it}th trigger bits [fixed range];normalized number of trigger bits", 200,0,fxdmax[it],200,0,60)}
 
     data.dropRight(1).each{ts,fcg,ntrg,dts,dfc,norm->
       def curr = dfc/dts/4*1e9

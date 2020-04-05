@@ -51,11 +51,11 @@ class FCup_mon {
     def h0fcdq1 = new H1F("hgtdQ_0", "gated charge between FC readings [full range];charge [nC]", 300,mingQ-dgQ,maxgQ+dgQ)
     def h0curr0 = new H1F("hugtdI_0", "ungated current [full range];current [nA]", 200,minuI-duI,maxuI+duI)
     def h0curr1 = new H1F("hgtdI_0", "gated current [full range];current [nA]", 200,mingI-dgI,maxgI+dgI)
-    def h1fcdt = new H1F("hdt_1", "time between FC readings [zoomed];time [sec]", 200,0,0.1)
-    def h1fcdq0 = new H1F("hugtdQ_1", "ungated charge between FC readings [zoomed];charge [nC]", 300,0,3)
-    def h1fcdq1 = new H1F("hgtdQ_1", "gated charge between FC readings [zoomed];charge [nC]", 300,0,3)
-    def h1curr0 = new H1F("hugtdI_1", "ungated current [zoomed];current [nA]", 300,0,170)
-    def h1curr1 = new H1F("hgtdI_1", "gated current [zoomed];current [nA]", 300,0,170)
+    def h1fcdt = new H1F("hdt_1", "time between FC readings [fixed];time [sec]", 200,0,0.1)
+    def h1fcdq0 = new H1F("hugtdQ_1", "ungated charge between FC readings [fixed];charge [nC]", 300,0,3)
+    def h1fcdq1 = new H1F("hgtdQ_1", "gated charge between FC readings [fixed];charge [nC]", 300,0,3)
+    def h1curr0 = new H1F("hugtdI_1", "ungated current [fixed];current [nA]", 300,0,170)
+    def h1curr1 = new H1F("hgtdI_1", "gated current [fixed];current [nA]", 300,0,170)
 
     data.each{dt,dfc0,dfc1,curr0,curr1->
       h0fcdt.fill(dt)
