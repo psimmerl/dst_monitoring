@@ -36,16 +36,16 @@ class EP_mon {
           def dfi = Math.toDegrees((ele.phi()-pro.phi()).abs())
           def e0 = 0.938*(-1+1/(Math.tan(ele.theta()/2)*Math.tan(pro.theta())))
 
-          hists.computeIfAbsent("hW:$esec",hm2pro).fill(ex.mass2())
-          hists.computeIfAbsent("hdfi:$esec",hdfi).fill(dfi)
+          hists.computeIfAbsent("hW_$esec",hm2pro).fill(ex.mass2())
+          hists.computeIfAbsent("hdfi_$esec",hdfi).fill(dfi)
 
           [
             ['dfi.lt.4', (dfi-180).abs()<4],
           ].findAll{it[1]}.each{name,cut->
-            hists.computeIfAbsent("$name/hW:$esec",hm2pro).fill(ex.mass2())
-            hists.computeIfAbsent("$name/hdfi:$esec",hdfi).fill(dfi)
-            hists.computeIfAbsent("$name/he0:$esec",he0).fill(e0)
-            hists.computeIfAbsent("$name/he0th:$esec",he0th).fill(Math.toDegrees(ele.theta()), e0)
+            hists.computeIfAbsent("$name/hW_$esec",hm2pro).fill(ex.mass2())
+            hists.computeIfAbsent("$name/hdfi_$esec",hdfi).fill(dfi)
+            hists.computeIfAbsent("$name/he0_$esec",he0).fill(e0)
+            hists.computeIfAbsent("$name/he0th_$esec",he0th).fill(Math.toDegrees(ele.theta()), e0)
           }
         }
     }

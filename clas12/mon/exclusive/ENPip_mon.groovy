@@ -37,8 +37,8 @@ class ENPip_mon {
 
           def q2 = -(beam-ele).mass2()
 
-          hists.computeIfAbsent("mm2:pip:$esec",hmm2pip).fill(misspip.mass2())
-          hists.computeIfAbsent("mm:neu:$esec",hmmneu).fill(missneu.mass())
+          hists.computeIfAbsent("mm2_pip_$esec",hmm2pip).fill(misspip.mass2())
+          hists.computeIfAbsent("mm_neu_$esec",hmmneu).fill(missneu.mass())
         }
     }
   }

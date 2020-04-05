@@ -43,9 +43,9 @@ class EPPipPim_mon {
           def pipdet = (partb.getShort('status',ipip)/1000).toInteger()==2 ? 'FD':'CD'
           def pimdet = (partb.getShort('status',ipim)/1000).toInteger()==2 ? 'FD':'CD'
 
-          hists.computeIfAbsent("mm2pip:$pimdet",hmm2).fill(mm2pip.mass2())
-          hists.computeIfAbsent("mm2pim:$pipdet",hmm2).fill(mm2pim.mass2())
-          hists.computeIfAbsent("mm2pro:$prodet",hmm2).fill(mm2pro.mass2())
+          hists.computeIfAbsent("mm2pip_$pimdet",hmm2).fill(mm2pip.mass2())
+          hists.computeIfAbsent("mm2pim_$pipdet",hmm2).fill(mm2pim.mass2())
+          hists.computeIfAbsent("mm2pro_$prodet",hmm2).fill(mm2pro.mass2())
           hists.computeIfAbsent("impropip",him).fill(impropip.mass())
           hists.computeIfAbsent("impropim",him).fill(impropim.mass())
           hists.computeIfAbsent("impippim",him).fill(impippim.mass())
@@ -53,9 +53,9 @@ class EPPipPim_mon {
           [
             ['m2pip.lt.0.5/m2pim.lt.0.5', mm2pim.mass2().abs()<0.5 && mm2pip.mass2().abs()<0.5],
           ].findAll{it[1]}.each{name,cut->
-            hists.computeIfAbsent("$name/mm2pip:$pimdet",hmm2).fill(mm2pip.mass2())
-            hists.computeIfAbsent("$name/mm2pim:$pipdet",hmm2).fill(mm2pim.mass2())
-            hists.computeIfAbsent("$name/mm2pro:$prodet",hmm2).fill(mm2pro.mass2())
+            hists.computeIfAbsent("$name/mm2pip_$pimdet",hmm2).fill(mm2pip.mass2())
+            hists.computeIfAbsent("$name/mm2pim_$pipdet",hmm2).fill(mm2pim.mass2())
+            hists.computeIfAbsent("$name/mm2pro_$prodet",hmm2).fill(mm2pro.mass2())
             hists.computeIfAbsent("$name/impropip",him).fill(impropip.mass())
             hists.computeIfAbsent("$name/impropim",him).fill(impropim.mass())
             hists.computeIfAbsent("$name/impippim",him).fill(impippim.mass())
