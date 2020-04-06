@@ -8,13 +8,13 @@ import org.jlab.clas.pdg.PDGDatabase
 
 class Sugar {
   static void enable() {
-    H2F.metaClass.projectionX = {name->
+    H2F.metaClass.projectionX = {name,title=""->
       H1F h1 = delegate.projectionX()
       h1.setName(name)
       return h1
     }
 
-    H2F.metaClass.projectionY = {name->
+    H2F.metaClass.projectionY = {name,title=""->
       H1F h1 = delegate.projectionY()
       h1.setName(name)
       return h1
