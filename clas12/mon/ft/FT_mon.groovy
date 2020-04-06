@@ -81,7 +81,7 @@ class FT_mon {
       }
     }
 
-    [hsntrgs,hsnorm0,hsnorm1].each{it.each{hists[it.getName().replace("h2","h")] = it.projectionX(it.getName().replace("h2","h"), h2.getTitle())}}
+    [hsntrgs,hsnorm0,hsnorm1].each{it.each{hists[it.getName().replace("h2","h")] = it.projectionX(it.getName().replace("h2","h"), it.getTitle())}}
     [hsntrgs,hsnorm0,hsnorm1].each{it.each{hists[it.getName()] = it}}
   }
 }
