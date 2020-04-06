@@ -11,12 +11,14 @@ class Sugar {
     H2F.metaClass.projectionX = {name,title=""->
       H1F h1 = delegate.projectionX()
       h1.setName(name)
+      h1.setTitle(title)
       return h1
     }
 
     H2F.metaClass.projectionY = {name,title=""->
       H1F h1 = delegate.projectionY()
       h1.setName(name)
+      h1.setTitle(title)
       return h1
     }
 
