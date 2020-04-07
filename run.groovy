@@ -14,7 +14,7 @@ import clas12.mon.exclusive.EPPi0_mon
 import clas12.mon.exclusive.EPPipPim_mon
 import clas12.mon.exclusive.ENPip_mon
 import clas12.mon.fcup.FCup_mon
-import clas12.mon.electron.ECounts
+import clas12.mon.electron.ECounts_mon
 import clas12.mon.ft.FT_mon
 import my.Sugar
 
