@@ -43,43 +43,45 @@ class ECounts_mon {
     tline.addAll(elentry.collect{ts,esec->[ts,1,esec]})
     tline.sort{a,b->a[0]<=>b[0]?:a[1]<=>b[1]}
 
-    def data = []
+    def data = [[fcup: [], nele: [0]*6]]
     tline.each{ts,id,val->
       if(id==0) {
         def fcg = val
-        if(data) {
-          def (ts0, fc0, nele) = data.last()
-          def dt = ts - ts0
-          def dq = fcg - fc0
-          data[-1].addAll([dt, dq, nele.collect{it/dq}])
+        data[-1].fcup.add([ts,fcg])
+
+        data[-1].dt = data.last().fcup.with{last()[0]-first()[0]}
+        data[-1].dq = data.last().fcup.with{last()[1]-first()[1]}
+        data[-1].norm = data[-1].with{nele*.div(dq)}
+
+        if(data[-1].fcup.with{last()[0]-first()[0]>1e9}) {
+          data.add([fcup: [[ts,fcg]], nele: [0]*6])
         }
-        data.add([ts,fcg,[0]*6])
-      } else if(data) {
+      } else if(data[-1].fcup) {
         def isec = val-1
-        data[-1][2][isec]++
+        data[-1].nele[isec]++
       }
     }
 
-    int maxnele = Math.max(20, data.collect{it[2].max()}.max().toInteger()+5)
-    def maxnorm = data.dropRight(1).collect{it[5].max()}.max()
+    int maxnele = data.collect{it.nele.max()}.max().toInteger()+10
+    def maxnorm = data.dropRight(1).collect{it.norm.max()}.max()*1.05
     def hsnele = (1..6).collect{new H2F("h2nele_s${it}", "number of electrons in sec $it between FC readings;number of electrons", maxnele,0,maxnele,200,0,60)}
     def hsnorm0 = (1..6).collect{new H2F("full/h2enorm0_s${it}", "normalized number of electrons in sec $it;normalized number of electrons", 200,0,maxnorm,200,0,60)}
-    def hsnorm1 = (1..6).collect{new H2F("fixed/h2enorm1_s${it}", "normalized number of electrons in sec $it;normalized number of electrons", 200,0,15,200,0,60)}
+    def hsnorm1 = (1..6).collect{new H2F("fixed/h2enorm1_s${it}", "normalized number of electrons in sec $it;normalized number of electrons", 200,0,5,200,0,60)}
 
-    maxnele = Math.max(50, data.collect{it[2].sum()}.max().toInteger()+5)
-    maxnorm = data.dropRight(1).collect{it[5].sum()}.max()
+    maxnele = data.collect{it.nele.sum()}.max().toInteger()+10
+    maxnorm = data.dropRight(1).collect{it.norm.sum()}.max()*1.05
     def h0nele = new H2F("h2nele", "number of electrons in all sectors between FC readings;number of electrons", maxnele,0,maxnele,200,0,60)
     def h0norm0 = new H2F("full/h2enorm0", "normalized number of electrons in all sectors;normalized number of electrons", 200,0,maxnorm,200,0,60)
-    def h0norm1 = new H2F("fixed/h2enorm1", "normalized number of electrons in all sectors;normalized number of electrons", 200,0,40,200,0,60)
+    def h0norm1 = new H2F("fixed/h2enorm1", "normalized number of electrons in all sectors;normalized number of electrons", 200,0,25,200,0,60)
 
-    data.dropRight(1).each{ts,fcg,nele,dts,dfc,norm->
-      def curr = dfc/dts/4*1e9
-      (0..<6).each{hsnele[it].fill(nele[it],curr)}
-      (0..<6).each{hsnorm0[it].fill(norm[it],curr)}
-      (0..<6).each{hsnorm1[it].fill(norm[it],curr)}
-      h0nele.fill(nele.sum(),curr)
-      h0norm0.fill(norm.sum(),curr)
-      h0norm1.fill(norm.sum(),curr)
+    data.dropRight(1).each{
+      def curr = it.dq/it.dt/4*1e9
+      (0..<6).each{i->hsnele[i].fill(it.nele[i], curr)}
+      (0..<6).each{i->hsnorm0[i].fill(it.norm[i], curr)}
+      (0..<6).each{i->hsnorm1[i].fill(it.norm[i], curr)}
+      h0nele.fill(it.nele.sum(), curr)
+      h0norm0.fill(it.norm.sum(), curr)
+      h0norm1.fill(it.norm.sum(), curr)
     }
 
     [hsnele,hsnorm0,hsnorm1].each{it.each{hists[it.getName().replace("h2","h")] = it.projectionX(it.getName().replace("h2","h"), it.getTitle())}}
