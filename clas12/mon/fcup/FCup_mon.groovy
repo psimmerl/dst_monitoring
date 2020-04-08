@@ -16,7 +16,8 @@ class FCup_mon {
     if(banknames.every{event.hasBank(it)}) {
       def (cnfb,scaler) = banknames.collect{event.getBank(it)}
       def ts = cnfb.getLong("timestamp", 0)
-      fcentry[ts] = [scaler.getFloat('fcup',0), scaler.getFloat('fcupgated',0)]
+      def t0 = cnfb.getInt("unixtime", 0)
+      fcentry.computeIfAbsent(t0, {[]}).add([ts, scaler.getFloat('fcup',0), scaler.getFloat('fcupgated',0)])
     }
   }
 
@@ -24,12 +25,19 @@ class FCup_mon {
   def finish() {
     def fc0 = null, fc1 = null, ts0 = null
 
-    def timeline = fcentry.sort().collect{ts,fcs->[ts,*fcs]}
+    def timeline = fcentry.sort().collectMany{t0,fcs->fcs.sort{a,b->a[0]<=>b[0]}.collect{[t0,*it]}}
 
+def tl = timeline
     def data = (0..timeline.size-2).collect{i->
-      def (dt,dfc0,dfc1) = [0,1,2].collect{timeline[i+1][it]-timeline[i][it]}
-      dt *= 4*1e-9
-      return [dt, dfc0, dfc1, dfc0/dt, dfc1/dt]
+      def (dt,dts,dfc0,dfc1) = [0,1,2,3].collect{timeline[i+1][it]-timeline[i][it]}
+      dts *= 4*1e-9
+if(dt>1 || dts>1){
+println("+=======================================")
+println([tl[i+1][1],tl[i][1],dts,dt])
+println([tl[i+1][2],tl[i][2],dfc0])
+println([tl[i+1][3],tl[i][3],dfc1])
+}
+      return [dts, dfc0, dfc1, dfc0/dts, dfc1/dts]
     }
 
     def minuQ = Math.min(0,data.collect{it[1]}.min())
