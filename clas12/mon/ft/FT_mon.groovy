@@ -52,31 +52,32 @@ class FT_mon {
     tline.each{ts,id,val->
       if(id==0) {
         def fcg = val
+
         if(data) {
-          def (ts0, fc0, trgs) = data.last()
-          def dt = ts - ts0
-          def dq = fcg - fc0
-          data[-1].addAll([dt, dq, trgs*.div(dq)])
+          data[-1].dt = ts - data[-1].ts
+          data[-1].dq = fcg - data[-1].fc
+          data[-1].norm = data[-1].with{ntrg*.div(dq)}
         }
-        data.add([ts,fcg,[0,0]])
+
+        data.add([fc:fcg, ts:ts, ntrg:[0,0]])
       } else if(data) {
-        data[-1][2][0] += val[0]
-        data[-1][2][1] += val[1]
+        data[-1].ntrg[0] += val[0]
+        data[-1].ntrg[1] += val[1]
       }
     }
 
-    int maxntrg = data.collect{it[2].max()}.max().toInteger()+5
-    def maxnorm = data.dropRight(1).collect{it[5].max()}.max()*1.1
-println([maxntrg,maxnorm])
+    def maxntrg = (0..1).collect{i->data.max{it.ntrg[i]}.ntrg[i].toInteger()+5}.collect{[it,0,it]}
+    def maxnorm = (0..1).collect{i->(data.dropRight(1).max{it.norm[i]}.norm[i].toInteger()+5).with{[it*(i?:10),0,it]}}
     def fxdmax = [24:15, 25:200]
-    def hsntrgs = [24,25].collect{new H2F("h2ntrg_b${it}", "number of ${it}th trigger bits between FC readings;number of trigger bits", maxntrg,0,maxntrg,200,0,60)}
-    def hsnorm0 = [24,25].collect{new H2F("full/h2norm0_b${it}", "normalized number of ${it}th trigger bits [full range];normalized number of trigger bits", 200,0,maxnorm,200,0,60)}
+
+    def hsntrgs = [24,25].collect{new H2F("h2ntrg_b${it}", "number of ${it}th trigger bits between FC readings;number of trigger bits", *maxntrg[it-24],200,0,60)}
+    def hsnorm0 = [24,25].collect{new H2F("full/h2norm0_b${it}", "normalized number of ${it}th trigger bits [full range];normalized number of trigger bits",*maxnorm[it-24],200,0,60)}
     def hsnorm1 = [24,25].collect{new H2F("fixed/h2norm1_b${it}", "normalized number of ${it}th trigger bits [fixed range];normalized number of trigger bits", 200,0,fxdmax[it],200,0,60)}
 
-    data.dropRight(1).each{ts,fcg,ntrg,dts,dfc,norm->
-      def curr = dfc/dts/4*1e9
-      ntrg.eachWithIndex{nn,i->hsntrgs[i].fill(nn,curr)}
-      norm.eachWithIndex{nn,i->
+    data.dropRight(1).each{
+      def curr = it.dq/it.dt/4*1e9
+      it.ntrg.eachWithIndex{nn,i->hsntrgs[i].fill(nn,curr)}
+      it.norm.eachWithIndex{nn,i->
         hsnorm0[i].fill(nn,curr)
         hsnorm1[i].fill(nn,curr)
       }
