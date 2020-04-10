@@ -42,10 +42,10 @@ class FT_mon {
 
 
   def finish() {
-    def tline = entry.sort().collect{it.value}
-
     def data = []
-    tline.each{ts,id,val->
+    def tline = entry.sort{it.key}.each{
+      def (ts,id,val) = it.value
+
       if(id==0) {
         def fcg = val
 
