@@ -10,22 +10,23 @@ import java.util.concurrent.ConcurrentHashMap
 
 class FT_mon {
   def hists = new ConcurrentHashMap()
-  def fcmap = new ConcurrentHashMap()
-  def trgmap = new ConcurrentHashMap()
-  def nqmap = new ConcurrentHashMap()
+  def entry = new ConcurrentHashMap()
 
   def processEvent(event) {
     if(event.hasBank("RUN::config")) {
       def cnfb = event.getBank("RUN::config")
       def ts = cnfb.getLong("timestamp", 0)
+      def evn = cnfb.getInt("event", 0)
+
       def trg = cnfb.getLong("trigger", 0)
       int trg24 = (trg>>24)&0x1, trg25=(trg>>25)&0x1
-      if(trg24 || trg25) trgmap[ts] = [trg24, trg25]
+      if(trg24 || trg25)
+        entry[evn+0.1] = [ts, 1, [trg24, trg25]]
 
       if(event.hasBank("RUN::scaler")) {
         def scaler = event.getBank("RUN::scaler")
         def fcg = scaler.getFloat('fcupgated',0)
-        fcmap[ts] = fcg
+        entry[evn] = [ts, 0, fcg]
       }
 
       if(event.hasBank("REC::Particle")) {
@@ -34,17 +35,14 @@ class FT_mon {
         int nneuts = ifts.findAll{partb.getByte('charge',it)==0}.size()
         int ncharged = ifts.size() - nneuts
 
-        nqmap[ts] = [nneuts, ncharged]
+        entry[evn+0.2] = [ts, 2, [nneuts, ncharged]]
       }
     }
   }
 
 
   def finish() {
-    def tline = fcmap.collect{ts,fcg->[ts,0,fcg]}
-    tline.addAll(trgmap.collect{ts,trgs->[ts,1,trgs]})
-    tline.addAll(nqmap.collect{ts,qqs->[ts,2,qqs]})
-    tline.sort{a,b->a[0]<=>b[0]?:a[1]<=>b[1]}
+    def tline = entry.sort().collect{it.value}
 
     def data = []
     tline.each{ts,id,val->
@@ -70,11 +68,11 @@ class FT_mon {
 
     def grnqqs = [new GraphErrors("grnqqs0"), new GraphErrors("grnqqs1")]
     def grnorm = [new GraphErrors("grnorm24"), new GraphErrors("grnorm25")]
-    data.dropRight(1).groupBy{it.tt/4/1e9/30}.each{t0,evlist->
-      grnorm[0].addPoint(t0*30, evlist.sum{it.norm[0]}/evlist.size(), 0,0)
-      grnorm[1].addPoint(t0*30, evlist.sum{it.norm[1]}/evlist.size(), 0,0)
-      grnqqs[0].addPoint(t0*30, evlist.sum{it.nqqs[0]}/evlist.size(), 0,0)
-      grnqqs[1].addPoint(t0*30, evlist.sum{it.nqqs[1]}/evlist.size(), 0,0)
+    data.dropRight(1).groupBy{it.tt/4/1e9/30}.each{tt,evlist->
+      grnorm[0].addPoint(tt*30, evlist.isEmpty()?0:evlist.sum{it.norm[0]}/evlist.size(), 0,0)
+      grnorm[1].addPoint(tt*30, evlist.isEmpty()?0:evlist.sum{it.norm[1]}/evlist.size(), 0,0)
+      grnqqs[0].addPoint(tt*30, evlist.isEmpty()?0:evlist.sum{it.nqqs[0]}/evlist.size(), 0,0)
+      grnqqs[1].addPoint(tt*30, evlist.isEmpty()?0:evlist.sum{it.nqqs[1]}/evlist.size(), 0,0)
     }
 
     def maxnqqs = (0..1).collect{i->data.max{it.nqqs[i]}.nqqs[i].toInteger()+5}.collect{[it,0,it]}
