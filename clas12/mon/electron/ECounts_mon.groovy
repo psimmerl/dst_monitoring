@@ -9,18 +9,18 @@ import java.util.concurrent.ConcurrentHashMap
 
 class ECounts_mon {
   def hists = new ConcurrentHashMap()
-  def fcentry = new ConcurrentHashMap()
-  def elentry = new ConcurrentHashMap()
+  def entry = new ConcurrentHashMap()
 
   def processEvent(event) {
     if(event.hasBank("RUN::config")) {
       def cnfb = event.getBank("RUN::config")
       def ts = cnfb.getLong("timestamp", 0)
+      def evn = cnfb.getInt("event", 0)
 
       if(event.hasBank("RUN::scaler")) {
         def scaler = event.getBank("RUN::scaler")
         def fcg = scaler.getFloat('fcupgated',0)
-        fcentry[ts] = fcg
+        entry[evn] = [ts, 0, fcg]
       }
 
      if(event.hasBank("REC::Particle") && event.hasBank("REC::Calorimeter")) {
@@ -32,16 +32,15 @@ class ECounts_mon {
           calb.getByte('detector',it).toInteger() == DetectorType.ECAL.getDetectorId()) ? calb.getByte('sector',it) : null
         }
 
-        if(iele!=null && esec!=null) elentry[ts] = esec
+        if(iele!=null && esec!=null)
+          entry[evn+0.1] = [ts, 1, esec]
       }
     }
   }
 
 
   def finish() {
-    def tline = fcentry.collect{ts,fcg->[ts,0,fcg]}
-    tline.addAll(elentry.collect{ts,esec->[ts,1,esec]})
-    tline.sort{a,b->a[0]<=>b[0]?:a[1]<=>b[1]}
+    def tline = entry.sort().collect{it.value}
 
     def data = [[fcup: [], nele: [0]*6]]
     tline.each{ts,id,val->
@@ -53,7 +52,7 @@ class ECounts_mon {
         data[-1].dq = data.last().fcup.with{last()[1]-first()[1]}
         data[-1].norm = data[-1].with{nele*.div(dq)}
 
-        if(data[-1].fcup.with{last()[0]-first()[0]>1e9}) {
+        if(data[-1].fcup.with{last()[0]-first()[0]>4e8}) {
           data.add([fcup: [[ts,fcg]], nele: [0]*6])
         }
       } else if(data[-1].fcup) {
