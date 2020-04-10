@@ -68,7 +68,7 @@ class FT_mon {
 
     def grnqqs = [new GraphErrors("grnqqs0"), new GraphErrors("grnqqs1")]
     def grnorm = [new GraphErrors("grnorm24"), new GraphErrors("grnorm25")]
-    data.dropRight(1).groupBy{it.tt/4/1e9/30}.each{tt,evlist->
+    data.dropRight(1).groupBy{(it.tt*4/1e9/30).toInteger()}.each{tt,evlist->
       grnorm[0].addPoint(tt*30, evlist.isEmpty()?0:evlist.sum{it.norm[0]}/evlist.size(), 0,0)
       grnorm[1].addPoint(tt*30, evlist.isEmpty()?0:evlist.sum{it.norm[1]}/evlist.size(), 0,0)
       grnqqs[0].addPoint(tt*30, evlist.isEmpty()?0:evlist.sum{it.nqqs[0]}/evlist.size(), 0,0)
