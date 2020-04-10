@@ -40,7 +40,7 @@ class ECounts_mon {
 
 
   def finish() {
-    def tline = entry.sort().collect{it.value}
+    def tline = entry.sort{it.key}.collect{it.value}
 
     def data = [[fcup: [], nele: [0]*6]]
     tline.each{ts,id,val->
