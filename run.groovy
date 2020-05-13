@@ -13,9 +13,13 @@ import clas12.mon.exclusive.EP_mon
 import clas12.mon.exclusive.EPPi0_mon
 import clas12.mon.exclusive.EPPipPim_mon
 import clas12.mon.exclusive.ENPip_mon
+import clas12.mon.exclusive.EPipNspectator_mon
 import clas12.mon.fcup.FCup_mon
 import clas12.mon.electron.ECounts_mon
 import clas12.mon.ft.FT_mon
+import clas12.mon.dis.DIS_mon
+import clas12.mon.sidis.EPi0_mon
+import clas12.mon.sidis.EPip_mon
 import my.Sugar
 
 Sugar.enable()
@@ -24,6 +28,9 @@ Sugar.enable()
 def outname = args[0].split('/')[-1]
 
 def processors = [new EPPi0_mon(), new EPPipPim_mon(), new EP_mon()]
+processors = [new DIS_mon(), new EPi0_mon(), new EPip_mon(), new EPPi0_mon()]
+//processors = [new DIS_mon()]
+//processors = [new ENPip_mon(), new EPipNspectator_mon()]
 
 def evcount = new AtomicInteger()
 def save = {
