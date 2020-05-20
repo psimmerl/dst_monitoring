@@ -6,11 +6,12 @@ import org.jlab.groot.data.H1F
 import org.jlab.groot.data.H2F
 import java.util.concurrent.ConcurrentHashMap
 
-class ECounts_mon {
+class multi_ECounts_mon {
   def hists = new ConcurrentHashMap()
   def entry = new ConcurrentHashMap()
 
   def processEvent(event) {
+		
     if(event.hasBank("RUN::config")) {
       def cnfb = event.getBank("RUN::config")
       def ts = cnfb.getLong("timestamp", 0)
