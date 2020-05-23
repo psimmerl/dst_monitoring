@@ -5,7 +5,9 @@ import org.jlab.clas.physics.LorentzVector
 import org.jlab.groot.data.H1F
 import org.jlab.groot.data.H2F
 import java.util.concurrent.ConcurrentHashMap
-
+//import java.util.concurrent.CopyOnWriteArrayList
+import groovyx.gpars.GParsPool
+ 
 class ECounts_mon {
   def hists = new ConcurrentHashMap()
   def entry = new ConcurrentHashMap()
@@ -36,6 +38,13 @@ class ECounts_mon {
       }
     }
   }
+
+	def processEvents(events) {
+		GParsPool.withPool(12) {
+    	events.eachParallel { processEvent(it) }
+			//processEvent(events.makeConcurrent())
+		}
+	}
 
 
   def finish() {
@@ -88,4 +97,91 @@ class ECounts_mon {
     [hsnele,hsnorm0,hsnorm1].each{it.each{hists[it.getName()] = it}}
     [h0nele,h0norm0,h0norm1].each{hists[it.getName()] = it}
   }
+
+
+	def finish_threaded() {
+		def tline = entry.sort{it.key}.collect{it.value} // ArrayList
+
+    def data = new CopyOnWriteArrayList[[fcup: [], nele: [0]*6]]// ArrayList
+    
+		GParsPool.withPool(12) {
+			
+			tline.eachParallel {//I'm not sure if this will work
+				ts=it[0]
+				id=it[1]
+				val=it[2]
+
+				if(id==0) {
+        	def fcg = val 
+        	data[-1].fcup.add([ts,fcg])
+
+        	data[-1].dt = data.last().fcup.with{last()[0]-first()[0]}
+        	data[-1].dq = data.last().fcup.with{last()[1]-first()[1]}
+        	data[-1].norm = data[-1].with{nele*.div(dq)}
+
+        	if(data[-1].fcup.with{last()[0]-first()[0]>4e8}) {
+          	data.add([fcup: [[ts,fcg]], nele: [0]*6])
+        	}
+      	} else if(data[-1].fcup) {
+        	def isec = val-1
+        	data[-1].nele[isec]++
+      	}   	
+				
+				
+			}
+			
+		}
+
+		tline.each{ts,id,val->//Pretty sure this needs to be serial
+      if(id==0) {
+        def fcg = val
+        data[-1].fcup.add([ts,fcg])
+
+        data[-1].dt = data.last().fcup.with{last()[0]-first()[0]}
+        data[-1].dq = data.last().fcup.with{last()[1]-first()[1]}
+        data[-1].norm = data[-1].with{nele*.div(dq)}
+
+        if(data[-1].fcup.with{last()[0]-first()[0]>4e8}) {
+          data.add([fcup: [[ts,fcg]], nele: [0]*6])
+        }
+      } else if(data[-1].fcup) {
+        def isec = val-1
+				data[-1].nele[isec]++
+      }
+    }
+		
+
+		GParsPool.withPool(12) {
+	    int maxnele = data.collectParallel{it.nele.max()}.maxParallel().toInteger()+10
+  	  def maxnorm = data.dropRight(1).collectParallel{it.norm.max()}.maxParallel()*1.05
+  	  def hsnele = (1..6).collectParallel{new H2F("h2nele_s${it}", """number of electrons in sec $it between FC readings;number of electrons""", maxnele,0,maxnele,200,0,60)}
+  	  def hsnorm0 = (1..6).collectParallel{new H2F("full/h2enorm0_s${it}", """normalized number of electrons in sec $it;normalized number of electrons""", 200,0,maxnorm,200,0,60)}
+	    def hsnorm1 = (1..6).collectParallel{new H2F("fixed/h2enorm1_s${it}", """normalized number of electrons in sec $it;normalized number of electrons""", 200,0,5,200,0,60)}
+
+    	maxnele = data.collectParallel{it.nele.sum()}.maxParallel().toInteger()+10
+    	maxnorm = data.dropRight(1).collectParallel{it.norm.sum()}.maxParallel()*1.05
+
+    	def h0nele = new H2F("h2nele", """number of electrons in all sectors between FC readings;number of electrons""", maxnele,0,maxnele,200,0,60)
+    	def h0norm0 = new H2F("full/h2enorm0", """normalized number of electrons in all sectors;normalized number of electrons""", 200,0,maxnorm,200,0,60)
+    	def h0norm1 = new H2F("fixed/h2enorm1", """normalized number of electrons in all sectors;normalized number of electrons""", 200,0,25,200,0,60)
+
+	    data.dropRight(1).eachParallel{
+  	    def curr = it.dq/it.dt/4*1e9
+    	  (0..<6).each{i->
+						hsnele[i].fill(it.nele[i], curr)
+	      		hsnorm0[i].fill(it.norm[i], curr)
+  	    		hsnorm1[i].fill(it.norm[i], curr)
+				}
+    	  h0nele.fill(it.nele.sum(), curr)
+      	h0norm0.fill(it.norm.sum(), curr)
+	      h0norm1.fill(it.norm.sum(), curr)
+  	  }
+
+	    [hsnele,hsnorm0,hsnorm1].each{it.eachParallel{hists[it.getName().replace("h2","h")] = it.projectionX(it.getName().replace("h2","h"), it.getTitle())}}
+	    [h0nele,h0norm0,h0norm1].eachParallel{hists[it.getName().replace('h2','h')] = it.projectionX(it.getName().replace("h2","h"), it.getTitle())}
+	
+			[hsnele,hsnorm0,hsnorm1].each{it.eachParallel{hists[it.getName()] = it}}
+	  	[h0nele,h0norm0,h0norm1].eachParallel{hists[it.getName()] = it}
+		}
+	}
 }
